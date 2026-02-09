@@ -1,6 +1,6 @@
 {
-  "name": "laravel-theme",
-  "displayName": "Laravel Theme",
+  "name": "artisan-theme",
+  "displayName": "Artisan Theme",
   "description": "A clean light color theme inspired by Laravel's branding and Josh's streams.",
   "version": "0.1.0",
   "publisher": "VheissuLabs",
@@ -13,13 +13,14 @@
   ],
   "keywords": [
     "laravel",
+    "artisan",
     "light",
     "theme",
     "php"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/VheissuLabs/laravel-theme"
+    "url": "https://github.com/VheissuLabs/artisan-theme"
   },
   "galleryBanner": {
     "color": "#F3F3F3",
@@ -28,7 +29,7 @@
   "contributes": {
     "themes": [
       {
-        "label": "Laravel Theme",
+        "label": "Artisan Theme",
         "uiTheme": "vs",
         "path": "./themes/laravel-theme-color-theme.json"
       }
