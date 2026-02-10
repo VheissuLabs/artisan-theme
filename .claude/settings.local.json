@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:code.visualstudio.com)",
+      "WebSearch",
+      "WebFetch(domain:www.sublimetext.com)",
+      "WebFetch(domain:webaim.org)",
+      "Bash(python3:*)",
+      "Bash(npx --yes @vscode/vsce:*)",
+      "Bash(vsce package:*)",
+      "Bash(code --install-extension:*)",
+      "Bash(vsce login:*)",
+      "Bash(vsce publish:*)",
+      "Bash(vsce ls-publishers:*)",
+      "Bash(git -C /Users/karlm/code/laravel-theme add .gitignore package.json themes/laravel-theme-color-theme.json)",
+      "Bash(git -C /Users/karlm/code/laravel-theme commit -m \"$\\(cat <<''EOF''\nInitial release of Laravel Theme\n\nLight VS Code color theme inspired by Laravel''s branding and Josh''s streams.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git -C /Users/karlm/code/laravel-theme push -u origin main)",
+      "Bash(gh repo rename:*)",
+      "Bash(git -C /Users/karlm/code/laravel-theme remote set-url:*)",
+      "Bash(git -C /Users/karlm/code/laravel-theme add package.json)",
+      "Bash(git -C /Users/karlm/code/laravel-theme commit -m \"$\\(cat <<''EOF''\nRename to Artisan Theme\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git -C /Users/karlm/code/laravel-theme push)",
+      "WebFetch(domain:zed.dev)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:dev.to)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(gh api:*)"
+    ]
+  }
+}
