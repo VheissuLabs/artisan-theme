@@ -24,7 +24,12 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:dev.to)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(gh api:*)"
+      "Bash(gh api:*)",
+      "Bash(npm run webpack:*)",
+      "Bash(npm install:*)",
+      "Bash(npx rimraf:*)",
+      "Bash(npx webpack:*)",
+      "Bash(zed:*)"
     ]
   }
 }
