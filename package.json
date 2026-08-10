@@ -2,7 +2,7 @@
   "name": "artisan-theme",
   "displayName": "Artisan Theme",
   "description": "A clean light color theme inspired by Laravel's branding and Josh's streams.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publisher": "VheissuLabs",
   "license": "MIT",
   "engines": {

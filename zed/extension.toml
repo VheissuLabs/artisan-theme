@@ -1,6 +1,6 @@
 id = "artisan-theme"
 name = "Artisan Theme"
-version = "0.2.0"
+version = "0.3.0"
 schema_version = 1
 authors = ["VheissuLabs"]
 description = "A clean light color theme inspired by Laravel's branding."

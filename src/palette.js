@@ -22,6 +22,7 @@ const palette = {
   grayMid: '#888888',
   grayLight: '#AAAAAA',
   grayPale: '#CACACA',
+  borderStrong: '#D2D2D2',
   surfaceActive: '#D5D5D5',
   border: '#E0E0E0',
   surfaceHover: '#EBEBEB',
