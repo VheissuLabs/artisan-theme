@@ -686,8 +686,8 @@
         "invalid.illegal"
       ],
       "settings": {
-        "foreground": "#FFFFFF",
-        "background": "#CA2606"
+        "foreground": "#CA2606",
+        "fontStyle": "underline"
       }
     },
     {
@@ -696,8 +696,8 @@
         "invalid.deprecated"
       ],
       "settings": {
-        "foreground": "#FFFFFF",
-        "background": "#F9B803"
+        "foreground": "#6B6B6B",
+        "fontStyle": "strikethrough"
       }
     },
     {

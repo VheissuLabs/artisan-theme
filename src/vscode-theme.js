@@ -693,8 +693,10 @@ module.exports = {
         "invalid.illegal"
       ],
       "settings": {
-        "foreground": p.white,
-        "background": p.red
+        // VS Code ignores `background` in tokenColors, so these carry their
+        // meaning through foreground + fontStyle instead.
+        "foreground": p.red,
+        "fontStyle": "underline"
       }
     },
     {
@@ -703,8 +705,8 @@ module.exports = {
         "invalid.deprecated"
       ],
       "settings": {
-        "foreground": p.white,
-        "background": p.yellow
+        "foreground": p.gray,
+        "fontStyle": "strikethrough"
       }
     },
     {
