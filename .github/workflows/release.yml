@@ -18,11 +18,11 @@ jobs:
     # is restricted to v* tags.
     environment: release
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Check the tag matches the manifests
         run: |
@@ -65,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: vscode
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # Zed has no publish API. Its registry tracks this repo as a git submodule,
       # so a release means bumping the submodule + version and opening a PR that a
@@ -74,22 +74,40 @@ jobs:
       - name: Bump the submodule and open the PR
         env:
           GH_TOKEN: ${{ secrets.ZED_PR_TOKEN }}
-          OWNER: ${{ github.repository_owner }}
         run: |
           set -euo pipefail
           VERSION="${GITHUB_REF_NAME#v}"
           BRANCH="artisan-theme-$VERSION"
+
+          # The fork belongs to the account behind ZED_PR_TOKEN, which is not
+          # necessarily this repo's owner (an org).
+          FORK_OWNER=$(gh api user -q .login)
+          echo "forking as $FORK_OWNER"
 
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
           gh repo fork zed-industries/extensions --clone=false || true
 
-          git clone "https://x-access-token:${GH_TOKEN}@github.com/${OWNER}/extensions.git" registry
+          # The fork may not be queryable for a moment after creation.
+          for i in 1 2 3 4 5; do
+            gh repo view "$FORK_OWNER/extensions" >/dev/null 2>&1 && break
+            echo "waiting for the fork to appear ($i)"; sleep 5
+          done
+
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/${FORK_OWNER}/extensions.git" registry
           cd registry
           git remote add upstream https://github.com/zed-industries/extensions.git
           git fetch --depth 1 upstream main
           git checkout -B "$BRANCH" upstream/main
+
+          # Bail out readably if the extension has never been submitted, rather
+          # than dying on a confusing git error further down.
+          if ! grep -q '^\[artisan-theme\]' extensions.toml; then
+            echo "::error::artisan-theme is not registered in zed-industries/extensions yet."
+            echo "::error::The first submission has to be a manual PR; this job handles bumps after that."
+            exit 1
+          fi
 
           # Point the submodule at the commit this tag was cut from.
           git submodule update --init --depth 1 extensions/artisan-theme
@@ -115,6 +133,6 @@ jobs:
 
           gh pr create \
             --repo zed-industries/extensions \
-            --head "${OWNER}:${BRANCH}" \
+            --head "${FORK_OWNER}:${BRANCH}" \
             --title "Bump artisan-theme to $VERSION" \
             --body "Updates [artisan-theme](https://github.com/${GITHUB_REPOSITORY}) to v${VERSION}."
