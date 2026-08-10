@@ -1,0 +1,9 @@
+# Only package.json, themes/, README and LICENSE need to ship in the .vsix.
+.github/**
+.claude/**
+src/**
+zed/**
+ghostty/**
+.gitignore
+.vscodeignore
+*.vsix

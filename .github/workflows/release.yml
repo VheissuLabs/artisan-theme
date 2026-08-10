@@ -1,0 +1,120 @@
+name: Release
+
+# Releases are cut by pushing a tag:
+#   git tag v0.2.0 && git push origin v0.2.0
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  vscode:
+    name: Publish to VS Code Marketplace
+    runs-on: ubuntu-latest
+    # Gated on the `release` environment: publishing waits for manual approval and
+    # is restricted to v* tags.
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check the tag matches the manifests
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          PKG=$(node -p "require('./package.json').version")
+          ZED=$(sed -n 's/^version = "\(.*\)"$/\1/p' zed/extension.toml)
+          echo "tag=$VERSION  package.json=$PKG  zed/extension.toml=$ZED"
+          if [ "$VERSION" != "$PKG" ]; then
+            echo "::error::package.json is $PKG but the tag says $VERSION"
+            exit 1
+          fi
+          if [ "$VERSION" != "$ZED" ]; then
+            echo "::error::zed/extension.toml is $ZED but the tag says $VERSION"
+            exit 1
+          fi
+
+      # Themes are generated from src/palette.js, so always build before packaging.
+      - name: Build themes
+        run: npm run build
+
+      - name: Package
+        run: npx --yes @vscode/vsce package --out "artisan-theme-${GITHUB_REF_NAME#v}.vsix"
+
+      - name: Publish
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: npx --yes @vscode/vsce publish --packagePath "artisan-theme-${GITHUB_REF_NAME#v}.vsix"
+
+      - name: Attach the .vsix to a GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes \
+            "artisan-theme-${GITHUB_REF_NAME#v}.vsix"
+
+  zed:
+    name: Open Zed extension PR
+    runs-on: ubuntu-latest
+    needs: vscode
+    steps:
+      - uses: actions/checkout@v4
+
+      # Zed has no publish API. Its registry tracks this repo as a git submodule,
+      # so a release means bumping the submodule + version and opening a PR that a
+      # Zed maintainer merges. The extension must already be registered there;
+      # the very first submission has to be done by hand.
+      - name: Bump the submodule and open the PR
+        env:
+          GH_TOKEN: ${{ secrets.ZED_PR_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME#v}"
+          BRANCH="artisan-theme-$VERSION"
+
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          gh repo fork zed-industries/extensions --clone=false || true
+
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/${OWNER}/extensions.git" registry
+          cd registry
+          git remote add upstream https://github.com/zed-industries/extensions.git
+          git fetch --depth 1 upstream main
+          git checkout -B "$BRANCH" upstream/main
+
+          # Point the submodule at the commit this tag was cut from.
+          git submodule update --init --depth 1 extensions/artisan-theme
+          git -C extensions/artisan-theme fetch --depth 1 origin "$GITHUB_SHA"
+          git -C extensions/artisan-theme checkout "$GITHUB_SHA"
+
+          # Bump the version inside the [artisan-theme] table of extensions.toml.
+          python3 - "$VERSION" <<'PY'
+          import re, sys
+          version = sys.argv[1]
+          path = 'extensions.toml'
+          src = open(path).read()
+          pattern = re.compile(r'(\[artisan-theme\][^\[]*?version\s*=\s*")[^"]*(")', re.S)
+          new, n = pattern.subn(rf'\g<1>{version}\g<2>', src)
+          if n != 1:
+              sys.exit(f'expected one [artisan-theme] version entry, found {n}')
+          open(path, 'w').write(new)
+          PY
+
+          git add extensions.toml extensions/artisan-theme
+          git commit -m "Bump artisan-theme to $VERSION"
+          git push --force origin "$BRANCH"
+
+          gh pr create \
+            --repo zed-industries/extensions \
+            --head "${OWNER}:${BRANCH}" \
+            --title "Bump artisan-theme to $VERSION" \
+            --body "Updates [artisan-theme](https://github.com/${GITHUB_REPOSITORY}) to v${VERSION}."
