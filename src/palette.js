@@ -19,6 +19,7 @@ const palette = {
   black: '#000000',
   ink: '#171717',
   gray: '#6B6B6B',
+  grayDim: '#7F7F7F',
   grayMid: '#888888',
   grayLight: '#AAAAAA',
   grayPale: '#CACACA',

@@ -29,7 +29,11 @@
       "Bash(npm install:*)",
       "Bash(npx rimraf:*)",
       "Bash(npx webpack:*)",
-      "Bash(zed:*)"
+      "Bash(zed:*)",
+      "Bash(git --no-pager diff --stat src/palette.js)",
+      "Bash(git --no-pager diff -- src/vscode-theme.js themes/laravel-theme-color-theme.json)",
+      "Bash(git --no-pager log --oneline -5)",
+      "Bash(awk '{print \"  modified:\",$6,$7,$8}')"
     ]
   }
 }

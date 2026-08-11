@@ -191,7 +191,9 @@ module.exports = {
     "gitDecoration.modifiedResourceForeground": p.blue,
     "gitDecoration.deletedResourceForeground": p.red,
     "gitDecoration.untrackedResourceForeground": p.green,
-    "gitDecoration.ignoredResourceForeground": p.grayLight,
+    // grayLight (#AAAAAA) sat at 2.09:1 — de-emphasised past the point of being
+    // readable. grayMid is what Zed already uses for ignored files.
+    "gitDecoration.ignoredResourceForeground": p.grayDim,
     "gitDecoration.conflictingResourceForeground": p.red,
     "gitDecoration.renamedResourceForeground": p.green,
     "gitDecoration.stageModifiedResourceForeground": p.blue,
