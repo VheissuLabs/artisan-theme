@@ -84,8 +84,11 @@ jobs:
           FORK_OWNER=$(gh api user -q .login)
           echo "forking as $FORK_OWNER"
 
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          # Commit as the token's own account, not github-actions[bot]. Zed's
+          # cla-bot checks the commit author against its signer list, and a bot
+          # can't sign a CLA — authoring as the bot fails the check every time.
+          git config --global user.name "$(gh api user -q '.name // .login')"
+          git config --global user.email "$(gh api user -q .login)@users.noreply.github.com"
 
           gh repo fork zed-industries/extensions --clone=false || true
 
